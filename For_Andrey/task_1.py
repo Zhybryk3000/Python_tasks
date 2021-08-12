@@ -161,10 +161,12 @@ for car in cars_list:
 for car in sorted_diesel_car:
     print(car.used_car_cost(), end=' ')
 print()
+
 # Бензиновые машины. Время до утилизации
 for car in sorted_petrol_car:
     print(car.time_before_disposal(), end=' ')
 print()
+
 # Суммарная стоимость машин в парке после пробега
 total = []
 for car in cars_list:
