@@ -145,8 +145,6 @@ class CarFabric:
 
 
 number_of_cars = CarFabric(100)
-# for car in number_of_cars.produce_cars():
-# print(car.number_of_repairs())
 
 cars_list = number_of_cars.produce_cars()
 sorted_diesel_car = []
