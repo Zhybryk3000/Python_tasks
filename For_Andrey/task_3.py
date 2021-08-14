@@ -1,175 +1,244 @@
-import random
 from math import ceil
-# Использовал math в методе number_of_car_refueling для округления до болшего числа. Можно было и без него.
-# Если модули лишний раз лучше не импортировать - дай знать.
+from random import randint
+from typing import Union
+print(randint.__doc__)
+print(ceil.__doc__)
+print(Union.__doc__)
 
 
 class Car:
+    """ A class to represent a car """
 
-    New_car_cost = 10000
-    Repair_for_diesel_car = 700
-    Repair_for_petrol_car = 500
-    Mileage_before_repair_diesel = 150_000
-    Mileage_before_repair_petrol = 100_000
-    Diesel_fuel_cost = 1.8
-    Petrol_fuel_cost = 2.4
-    Fuel_consumption_diesel_on_hundred_km = 6 / 100
-    Fuel_consumption_petrol_on_hundred_km = 8 / 100
-    Decrease_value_diesel_per_thousand_km = 105
-    Decrease_value_petrol_per_thousand_km = 95
+    NEW_CAR_COST = 10000
+    REPAIR_FOR_DIESEL_CAR = 700
+    REPAIR_FOR_PETROL_CAR = 500
+    MILEAGE_BEFORE_REPAIR_DIESEL = 150_000
+    MILEAGE_BEFORE_REPAIR_PETROL = 100_000
+    DIESEL_FUEL_COST = 1.8
+    PETROL_FUEL_COST = 2.4
+    FUEL_CONSUMPTION_DIESEL_ON_HUNDRED_KM = 6 / 100
+    FUEL_CONSUMPTION_PETROL_ON_HUNDRED_KM = 8 / 100
+    DECREASE_VALUE_DIESEL_PER_THOUSAND_KM = 105
+    DECREASE_VALUE_PETROL_PER_THOUSAND_KM = 95
+    FIRST_ENGINE_TYPE = 'diesel'
+    SECOND_ENGINE_TYPE = 'petrol'
 
-    def __init__(self, engine, gas_tank):
+    def __init__(self, engine: str, gas_tank: int):
         assert engine in ('diesel', 'petrol'), f'Incorrect engine type: {engine}'
         assert gas_tank in (60, 75), f'Incorrect gas_tank type: {gas_tank}'
         self.engine = engine
         self.gas_tank = gas_tank
-        self.mileage = random.randint(55_000, 286_000)
+        self.mileage = randint(55_000, 286_000)
+        """
+        :param engine: type engine in the car
+        :param gas_tank: volume gas_tank in the car
+        """
 
-    # Пробег
-    def car_mileage(self):
-        mileage = self.mileage
-        return mileage
+    def number_of_repairs(self) -> int:
+        """
+        Gets engine type and calculate repairs
 
-    # Рассчитываем количество тех.обслуживаний машины
-    def number_of_repairs(self):
-        mileage = self.mileage
-        number_of_repairs = 0
-        if self.engine == 'diesel':
-            number_of_repairs = mileage // Car.Mileage_before_repair_diesel
-        elif self.engine == 'petrol':
-            number_of_repairs = mileage // Car.Mileage_before_repair_petrol
+        :return:number of repairs for car
+        """
+        if self.engine == Car.FIRST_ENGINE_TYPE:
+            number_of_repairs = self.mileage // Car.MILEAGE_BEFORE_REPAIR_DIESEL
+        else:
+            # For petrol car
+            number_of_repairs = self.mileage // Car.MILEAGE_BEFORE_REPAIR_PETROL
         return number_of_repairs
 
-    # Рассчитываем стоимость всех тех.обслуживаний
-    def repair_cost(self):
+    def repair_cost(self) -> int:
+        """
+        Calculate repair cost depending on engine type
+
+        :return:repair cost for car
+        """
         number_of_repairs = Car.number_of_repairs(self)
-        repair_cost = 0
-        if self.engine == 'diesel':
-            repair_cost = Car.Repair_for_diesel_car * number_of_repairs
-        elif self.engine == 'petrol':
-            repair_cost = Car.Repair_for_petrol_car * number_of_repairs
+        if self.engine == Car.FIRST_ENGINE_TYPE:
+            repair_cost = Car.REPAIR_FOR_DIESEL_CAR * number_of_repairs
+        else:
+            # For petrol car
+            repair_cost = Car.REPAIR_FOR_PETROL_CAR * number_of_repairs
         return repair_cost
 
-    # Получился очень длинный метод для рассчёта стоимости бензина. Короче не придумал
-    # Главная проблема в том, что расход увеличивается на 1% с каждой 1000 км. Поэтому много букв
-    # В конце округлил до ближайшего целого числа
-    def fuel_cost(self):
+    def fuel_cost(self) -> Union[int, float]:
+        """
+        Calculate fuel cost for cars after mileage
+
+        :return:fuel cost with module round
+        """
         mileage = self.mileage
         total_fuel_cost = 0
         kef = 0
-        if self.engine == 'diesel':
+        if self.engine == Car.FIRST_ENGINE_TYPE:
             while True:
                 if mileage > 1000:
-                    fuel_cost = Car.Fuel_consumption_diesel_on_hundred_km * 1000 * Car.Diesel_fuel_cost
+                    fuel_cost = Car.FUEL_CONSUMPTION_DIESEL_ON_HUNDRED_KM * 1000 * Car.DIESEL_FUEL_COST
                     total_fuel_cost += fuel_cost + (fuel_cost * kef)
                     kef += 0.01
                     mileage -= 1000
                 else:
-                    fuel_cost = Car.Fuel_consumption_diesel_on_hundred_km * mileage * Car.Diesel_fuel_cost
+                    fuel_cost = Car.FUEL_CONSUMPTION_DIESEL_ON_HUNDRED_KM * mileage * Car.DIESEL_FUEL_COST
                     total_fuel_cost += fuel_cost + (fuel_cost * kef)
                     break
         else:
+            # For petrol car
             while True:
                 if mileage > 1000:
-                    fuel_cost = Car.Fuel_consumption_petrol_on_hundred_km * 1000 * Car.Petrol_fuel_cost
+                    fuel_cost = Car.FUEL_CONSUMPTION_PETROL_ON_HUNDRED_KM * 1000 * Car.PETROL_FUEL_COST
                     total_fuel_cost += fuel_cost + (fuel_cost * kef)
                     kef += 0.01
                     mileage -= 1000
                 else:
-                    fuel_cost = Car.Fuel_consumption_petrol_on_hundred_km * mileage * Car.Petrol_fuel_cost
+                    fuel_cost = Car.FUEL_CONSUMPTION_PETROL_ON_HUNDRED_KM * mileage * Car.PETROL_FUEL_COST
                     total_fuel_cost += fuel_cost + (fuel_cost * kef)
                     break
         return round(total_fuel_cost)
 
-    # Количество заправок автомобиля
-    # Тут я принебрёг увеличением расхода на 1% за каждую 1000км
-    # Машина столько не проедет, чтобы погрешность составила хотя бы одну заправку
-    def number_of_car_refueling(self):
-        mileage = self.mileage
-        number_of_car_refueling = mileage / self.gas_tank
-        number_of_car_refueling = ceil(number_of_car_refueling)
-        return number_of_car_refueling
+    def number_of_car_refueling(self) -> int:
+        """
+        Calculate refueling depending on gas_tank volume
 
-    # Остаточная стоимость автомобиля
-    def used_car_cost(self):
-        mileage = self.mileage
-        used_car_cost = 0
-        if self.engine == 'diesel':
-            used_car_cost = Car.New_car_cost - (Car.Decrease_value_diesel_per_thousand_km * (mileage // 1000))
-        elif self.engine == 'petrol':
-            used_car_cost = Car.New_car_cost - (Car.Decrease_value_petrol_per_thousand_km * (mileage // 1000))
+        :return:number of car refueling
+        """
+        number_of_car_refueling = self.mileage / self.gas_tank
+        return ceil(number_of_car_refueling)
+
+    def used_car_cost(self) -> int:
+        """
+        Calculate car cost depending on mileage and engine type
+
+        :return:car cost after mileage
+        """
+        if self.engine == Car.FIRST_ENGINE_TYPE:
+            used_car_cost = Car.NEW_CAR_COST - (Car.DECREASE_VALUE_DIESEL_PER_THOUSAND_KM * (self.mileage // 1000))
+        else:
+            # For petrol car
+            used_car_cost = Car.NEW_CAR_COST - (Car.DECREASE_VALUE_PETROL_PER_THOUSAND_KM * (self.mileage // 1000))
         if used_car_cost <= 0:
             return 0
         else:
             return used_car_cost
 
-    # Сколько пробега осталось до утилизации
-    def time_before_disposal(self):
+    def mileage_before_disposal(self) -> Union[int, float]:
+        """
+        Gets used car cost and calculate time used cars before disposal
+
+        :return:mileage before disposal
+        """
         used_car_cost = Car.used_car_cost(self)
-        time_before_disposal = 0
-        if self.engine == 'diesel':
-            time_before_disposal = used_car_cost / (Car.Decrease_value_diesel_per_thousand_km / 1000)
-        elif self.engine == 'petrol':
-            time_before_disposal = used_car_cost / (Car.Decrease_value_petrol_per_thousand_km / 1000)
-        time_before_disposal = round(time_before_disposal)
-        return time_before_disposal
+        if self.engine == Car.FIRST_ENGINE_TYPE:
+            time_before_disposal = used_car_cost / (Car.DECREASE_VALUE_DIESEL_PER_THOUSAND_KM / 1000)
+        else:
+            # For petrol car
+            time_before_disposal = used_car_cost / (Car.DECREASE_VALUE_PETROL_PER_THOUSAND_KM / 1000)
+        return round(time_before_disposal)
 
 
-# Класс для создания машин
 class CarFabric:
+    """
+    Class for car making
+    """
 
-    Number_diesel_car = 3  # Каждая 3-я машина - дизельная
-    Number_non_standard_gas_tank = 5  # Каждая 5-ая машина с нестандартным бензобаком
-    Standard_gas_tank = 60
-    Non_standard_gas_tank = 75
-    mileage = random.randint(55_000, 286_000)
+    NUMBER_DIESEL_CAR = 3
+    NUMBER_NON_STANDARD_GAS_TANK = 5
+    STANDARD_GAS_TANK = 60
+    NON_STANDARD_GAS_TANK = 75
 
-    def __init__(self, number):
+    def __init__(self, number: int):
         assert type(number) == int, f'Incorrect engine type: {number}'
         self.car_number = number
+        """
+        :param number: the number of cars will be created
+        """
 
-    # В качестве переменных использовал атрибуты класса. Хз на сколько правильно. Выглядит нечитабельно
-    def produce_cars(self):
-        number = self.car_number
+    def produce_cars(self) -> list:
+        """
+        Gets parameters of the car and make car depending on the car number
+
+        :return:list of object class Car
+        """
         cars = []
-        for i in range(number):
-            if i % CarFabric.Number_diesel_car == 0 and i % CarFabric.Number_non_standard_gas_tank == 0:
-                cars.append(Car('diesel', CarFabric.Non_standard_gas_tank))
-            elif i % CarFabric.Number_diesel_car == 0 and i % CarFabric.Number_non_standard_gas_tank != 0:
-                cars.append(Car('diesel', CarFabric.Standard_gas_tank))
-            elif i % CarFabric.Number_diesel_car != 0 and i % CarFabric.Number_non_standard_gas_tank == 0:
-                cars.append(Car('petrol', CarFabric.Non_standard_gas_tank))
+        for i in range(self.car_number):
+            if i % CarFabric.NUMBER_DIESEL_CAR == 0 and i % CarFabric.NUMBER_NON_STANDARD_GAS_TANK == 0:
+                cars.append(Car(Car.FIRST_ENGINE_TYPE, CarFabric.NON_STANDARD_GAS_TANK))
+            elif i % CarFabric.NUMBER_DIESEL_CAR == 0 and i % CarFabric.NUMBER_NON_STANDARD_GAS_TANK != 0:
+                cars.append(Car(Car.FIRST_ENGINE_TYPE, CarFabric.STANDARD_GAS_TANK))
+            elif i % CarFabric.NUMBER_DIESEL_CAR != 0 and i % CarFabric.NUMBER_NON_STANDARD_GAS_TANK == 0:
+                cars.append(Car(Car.SECOND_ENGINE_TYPE, CarFabric.NON_STANDARD_GAS_TANK))
             else:
-                cars.append(Car('petrol', CarFabric.Standard_gas_tank))
+                cars.append(Car(Car.SECOND_ENGINE_TYPE, CarFabric.STANDARD_GAS_TANK))
         return cars
 
 
 number_of_cars = CarFabric(100)
 
-cars_list = number_of_cars.produce_cars()
-sorted_diesel_car = []
-sorted_petrol_car = []
-for car in cars_list:
-    if car.engine == 'diesel':
-        sorted_diesel_car.append(car)
-    else:
-        sorted_petrol_car.append(car)
+if __name__ == '__main__':
 
-# Дизельные машины с остаточной стоимостью
-for car in sorted_diesel_car:
-    print(car.used_car_cost(), end=' ')
-print()
+    cars_list = number_of_cars.produce_cars()
+    sorted_diesel_car = []
+    sorted_petrol_car = []
+    for car in cars_list:
+        if car.engine == Car.FIRST_ENGINE_TYPE:
+            sorted_diesel_car.append(car)
+        else:
+            sorted_petrol_car.append(car)
 
-# Бензиновые машины. Время до утилизации
-for car in sorted_petrol_car:
-    print(car.time_before_disposal(), end=' ')
-print()
+    diesel_car_list = []  # list used car cost for diesel cars
+    for car in sorted_diesel_car:
+        diesel_car_list.append(car.used_car_cost())
 
-# Суммарная стоимость машин в парке после пробега
-total = []
-for car in cars_list:
-    total.append(car.used_car_cost())
-result = 0
-for numbers in total:
-    result += numbers
-print(result)
+    def diesel_used_car_cost(cars: list) -> list:
+        """
+        For sort the list with used diesel cars
+
+        :param cars:list with all used diesel cars
+        :return:list diesel used car cost
+        """
+        result_list = [e for e in cars if e > 0]
+        result_list = sorted(result_list)
+        return result_list
+
+    petrol_car_list = []  # list time before disposal for petrol cars
+    for car in sorted_petrol_car:
+        petrol_car_list.append(car.mileage_before_disposal())
+
+    def mileage_before_disposal_petrol_car(cars: list) -> list:
+        """
+        For sort the list with used petrol cars
+
+        :param cars: list with all used petrol cars
+        :return: mileage before disposal for petrol cars
+        """
+        result_list = [e for e in cars if e > 0]
+        result_list = sorted(result_list)
+        return result_list
+
+    car_list = []  # list with cost all cars
+    for car in cars_list:
+        car_list.append(car.used_car_cost())
+
+    def car_cost(cars: list) -> int:
+        """
+        Calculate total cost all used cars
+
+        :param cars: list with all used cars
+        :return: total car cost
+        """
+        total_car_cost = 0
+        for i in cars:
+            total_car_cost += i
+        return total_car_cost
+
+    my_car = Car('diesel', 60)
+    print(my_car.mileage)
+    print(my_car.number_of_repairs())
+    print(my_car.repair_cost())
+    print(my_car.number_of_car_refueling())
+    print(my_car.used_car_cost())
+    print(my_car.mileage_before_disposal())
+    print(diesel_used_car_cost(diesel_car_list))
+    print(mileage_before_disposal_petrol_car(petrol_car_list))
+    print(car_cost(car_list))
+
+#  Спросить по list[type] в produce_cars
