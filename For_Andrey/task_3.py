@@ -1,9 +1,9 @@
+"""
+Module
+"""
 from math import ceil
 from random import randint
 from typing import Union
-print(randint.__doc__)
-print(ceil.__doc__)
-print(Union.__doc__)
 
 
 class Car:
@@ -16,23 +16,23 @@ class Car:
     MILEAGE_BEFORE_REPAIR_PETROL = 100_000
     DIESEL_FUEL_COST = 1.8
     PETROL_FUEL_COST = 2.4
-    FUEL_CONSUMPTION_DIESEL_ON_HUNDRED_KM = 6 / 100
-    FUEL_CONSUMPTION_PETROL_ON_HUNDRED_KM = 8 / 100
+    FUEL_CONSUMPTION_DIESEL_ON_HUNDRED_KM = 0.06
+    FUEL_CONSUMPTION_PETROL_ON_HUNDRED_KM = 0.08
     DECREASE_VALUE_DIESEL_PER_THOUSAND_KM = 105
     DECREASE_VALUE_PETROL_PER_THOUSAND_KM = 95
-    FIRST_ENGINE_TYPE = 'diesel'
-    SECOND_ENGINE_TYPE = 'petrol'
+    DIESEL_ENGINE_TYPE = 'diesel'
+    PETROL_ENGINE_TYPE = 'petrol'
 
     def __init__(self, engine: str, gas_tank: int):
+        """
+        :param engine: type engine in the car
+        :param gas_tank: volume gas_tank in the car
+        """
         assert engine in ('diesel', 'petrol'), f'Incorrect engine type: {engine}'
         assert gas_tank in (60, 75), f'Incorrect gas_tank type: {gas_tank}'
         self.engine = engine
         self.gas_tank = gas_tank
         self.mileage = randint(55_000, 286_000)
-        """
-        :param engine: type engine in the car
-        :param gas_tank: volume gas_tank in the car
-        """
 
     def number_of_repairs(self) -> int:
         """
@@ -40,7 +40,7 @@ class Car:
 
         :return:number of repairs for car
         """
-        if self.engine == Car.FIRST_ENGINE_TYPE:
+        if self.engine == Car.DIESEL_ENGINE_TYPE:
             number_of_repairs = self.mileage // Car.MILEAGE_BEFORE_REPAIR_DIESEL
         else:
             # For petrol car
@@ -54,12 +54,29 @@ class Car:
         :return:repair cost for car
         """
         number_of_repairs = Car.number_of_repairs(self)
-        if self.engine == Car.FIRST_ENGINE_TYPE:
-            repair_cost = Car.REPAIR_FOR_DIESEL_CAR * number_of_repairs
-        else:
-            # For petrol car
-            repair_cost = Car.REPAIR_FOR_PETROL_CAR * number_of_repairs
-        return repair_cost
+        repair_cost = Car.REPAIR_FOR_DIESEL_CAR if self.engine == Car.DIESEL_ENGINE_TYPE else Car.REPAIR_FOR_PETROL_CAR
+        return repair_cost * number_of_repairs
+
+    def __method(self, fuel_consumption: Union[int, float], fuel_cost: Union[int, float]) -> Union[int, float]:
+        """
+        Gets param petrol or diesel car for help calculating fuel cost
+        :param fuel_consumption:fuel consumption per hundred km
+        :param fuel_cost: fuel cost for one liter
+        :return:fuel cost
+        """
+        total_fuel_cost = 0
+        kef = 0
+        while True:
+            if self.mileage > 1000:
+                fuel_cost = fuel_consumption * 1000 * fuel_cost
+                total_fuel_cost += fuel_cost + (fuel_cost * kef)
+                kef += 0.01
+                self.mileage -= 1000
+            else:
+                fuel_cost = fuel_consumption * self.mileage * fuel_cost
+                total_fuel_cost += fuel_cost + (fuel_cost * kef)
+                break
+        return total_fuel_cost
 
     def fuel_cost(self) -> Union[int, float]:
         """
@@ -67,33 +84,11 @@ class Car:
 
         :return:fuel cost with module round
         """
-        mileage = self.mileage
-        total_fuel_cost = 0
-        kef = 0
-        if self.engine == Car.FIRST_ENGINE_TYPE:
-            while True:
-                if mileage > 1000:
-                    fuel_cost = Car.FUEL_CONSUMPTION_DIESEL_ON_HUNDRED_KM * 1000 * Car.DIESEL_FUEL_COST
-                    total_fuel_cost += fuel_cost + (fuel_cost * kef)
-                    kef += 0.01
-                    mileage -= 1000
-                else:
-                    fuel_cost = Car.FUEL_CONSUMPTION_DIESEL_ON_HUNDRED_KM * mileage * Car.DIESEL_FUEL_COST
-                    total_fuel_cost += fuel_cost + (fuel_cost * kef)
-                    break
+        if self.engine == Car.DIESEL_ENGINE_TYPE:
+            return round(self.__method(Car.FUEL_CONSUMPTION_DIESEL_ON_HUNDRED_KM, Car.DIESEL_FUEL_COST))
         else:
             # For petrol car
-            while True:
-                if mileage > 1000:
-                    fuel_cost = Car.FUEL_CONSUMPTION_PETROL_ON_HUNDRED_KM * 1000 * Car.PETROL_FUEL_COST
-                    total_fuel_cost += fuel_cost + (fuel_cost * kef)
-                    kef += 0.01
-                    mileage -= 1000
-                else:
-                    fuel_cost = Car.FUEL_CONSUMPTION_PETROL_ON_HUNDRED_KM * mileage * Car.PETROL_FUEL_COST
-                    total_fuel_cost += fuel_cost + (fuel_cost * kef)
-                    break
-        return round(total_fuel_cost)
+            return round(self.__method(Car.FUEL_CONSUMPTION_PETROL_ON_HUNDRED_KM, Car.PETROL_FUEL_COST))
 
     def number_of_car_refueling(self) -> int:
         """
@@ -110,7 +105,7 @@ class Car:
 
         :return:car cost after mileage
         """
-        if self.engine == Car.FIRST_ENGINE_TYPE:
+        if self.engine == Car.DIESEL_ENGINE_TYPE:
             used_car_cost = Car.NEW_CAR_COST - (Car.DECREASE_VALUE_DIESEL_PER_THOUSAND_KM * (self.mileage // 1000))
         else:
             # For petrol car
@@ -127,7 +122,7 @@ class Car:
         :return:mileage before disposal
         """
         used_car_cost = Car.used_car_cost(self)
-        if self.engine == Car.FIRST_ENGINE_TYPE:
+        if self.engine == Car.DIESEL_ENGINE_TYPE:
             time_before_disposal = used_car_cost / (Car.DECREASE_VALUE_DIESEL_PER_THOUSAND_KM / 1000)
         else:
             # For petrol car
@@ -136,99 +131,108 @@ class Car:
 
 
 class CarFabric:
-    """
-    Class for car making
-    """
+    """Class for car making"""
 
     NUMBER_DIESEL_CAR = 3
     NUMBER_NON_STANDARD_GAS_TANK = 5
-    STANDARD_GAS_TANK = 60
-    NON_STANDARD_GAS_TANK = 75
+    VOLUME_STANDARD_GAS_TANK = 60
+    VOLUME_NON_STANDARD_GAS_TANK = 75
 
-    def __init__(self, number: int):
-        assert type(number) == int, f'Incorrect engine type: {number}'
-        self.car_number = number
-        """
-        :param number: the number of cars will be created
-        """
-
-    def produce_cars(self) -> list:
+    @classmethod
+    def produce_cars(cls, number_of_produce: int) -> list:
         """
         Gets parameters of the car and make car depending on the car number
-
+        :param number_of_produce: the number of cars to be created
         :return:list of object class Car
         """
         cars = []
-        for i in range(self.car_number):
+        for i in range(number_of_produce):
             if i % CarFabric.NUMBER_DIESEL_CAR == 0 and i % CarFabric.NUMBER_NON_STANDARD_GAS_TANK == 0:
-                cars.append(Car(Car.FIRST_ENGINE_TYPE, CarFabric.NON_STANDARD_GAS_TANK))
+                cars.append(Car(Car.DIESEL_ENGINE_TYPE, CarFabric.VOLUME_NON_STANDARD_GAS_TANK))
             elif i % CarFabric.NUMBER_DIESEL_CAR == 0 and i % CarFabric.NUMBER_NON_STANDARD_GAS_TANK != 0:
-                cars.append(Car(Car.FIRST_ENGINE_TYPE, CarFabric.STANDARD_GAS_TANK))
+                cars.append(Car(Car.DIESEL_ENGINE_TYPE, CarFabric.VOLUME_STANDARD_GAS_TANK))
             elif i % CarFabric.NUMBER_DIESEL_CAR != 0 and i % CarFabric.NUMBER_NON_STANDARD_GAS_TANK == 0:
-                cars.append(Car(Car.SECOND_ENGINE_TYPE, CarFabric.NON_STANDARD_GAS_TANK))
+                cars.append(Car(Car.PETROL_ENGINE_TYPE, CarFabric.VOLUME_NON_STANDARD_GAS_TANK))
             else:
-                cars.append(Car(Car.SECOND_ENGINE_TYPE, CarFabric.STANDARD_GAS_TANK))
+                cars.append(Car(Car.PETROL_ENGINE_TYPE, CarFabric.VOLUME_STANDARD_GAS_TANK))
         return cars
 
 
-number_of_cars = CarFabric(100)
+class CarsHelperCalculationClass:
+    """Class for calculate another tasks"""
 
-if __name__ == '__main__':
+    @staticmethod
+    def sorted_diesel_cars(all_cars):
+        """
+        Method for sorting cars by engine type
+        :return:list with diesel cars
+        """
+        diesel_car = []
+        for car in all_cars:
+            if car.engine == Car.DIESEL_ENGINE_TYPE:
+                diesel_car.append(car)
+        return diesel_car
 
-    cars_list = number_of_cars.produce_cars()
-    sorted_diesel_car = []
-    sorted_petrol_car = []
-    for car in cars_list:
-        if car.engine == Car.FIRST_ENGINE_TYPE:
-            sorted_diesel_car.append(car)
-        else:
-            sorted_petrol_car.append(car)
+    @staticmethod
+    def sorted_petrol_cars(all_cars):
+        """
+        Method for sorting cars by engine type
+        :return:list with petrol cars
+        """
+        petrol_car = []
+        for car in all_cars:
+            if car.engine == Car.PETROL_ENGINE_TYPE:
+                petrol_car.append(car)
+        return petrol_car
 
-    diesel_car_list = []  # list used car cost for diesel cars
-    for car in sorted_diesel_car:
-        diesel_car_list.append(car.used_car_cost())
-
-    def diesel_used_car_cost(cars: list) -> list:
+    @staticmethod
+    def diesel_used_car_cost() -> list:
         """
         For sort the list with used diesel cars
 
-        :param cars:list with all used diesel cars
         :return:list diesel used car cost
         """
-        result_list = [e for e in cars if e > 0]
+        diesel_car_list = []  # list used car cost for diesel cars
+        for i in CarsHelperCalculationClass.sorted_diesel_cars(cars_list):
+            diesel_car_list.append(i.used_car_cost())
+        result_list = [e for e in diesel_car_list if e > 0]
         result_list = sorted(result_list)
         return result_list
 
-    petrol_car_list = []  # list time before disposal for petrol cars
-    for car in sorted_petrol_car:
-        petrol_car_list.append(car.mileage_before_disposal())
-
-    def mileage_before_disposal_petrol_car(cars: list) -> list:
+    @staticmethod
+    def mileage_before_disposal_petrol_car() -> list:
         """
         For sort the list with used petrol cars
 
-        :param cars: list with all used petrol cars
         :return: mileage before disposal for petrol cars
         """
-        result_list = [e for e in cars if e > 0]
+        petrol_car_list = []  # list time before disposal for petrol cars
+        for car in CarsHelperCalculationClass.sorted_petrol_cars(cars_list):
+            petrol_car_list.append(car.mileage_before_disposal())
+        result_list = [e for e in petrol_car_list if e > 0]
         result_list = sorted(result_list)
         return result_list
 
-    car_list = []  # list with cost all cars
-    for car in cars_list:
-        car_list.append(car.used_car_cost())
-
-    def car_cost(cars: list) -> int:
+    @staticmethod
+    def car_cost() -> int:
         """
         Calculate total cost all used cars
 
-        :param cars: list with all used cars
         :return: total car cost
         """
+        car_list = []  # list with cost all cars
+        for car in cars_list:
+            car_list.append(car.used_car_cost())
         total_car_cost = 0
-        for i in cars:
+        for i in car_list:
             total_car_cost += i
         return total_car_cost
+
+
+if __name__ == '__main__':
+    cars_list = CarFabric.produce_cars(100)
+    for_example = CarsHelperCalculationClass()
+    CarsHelperCalculationClass.sorted_diesel_cars(cars_list)
 
     my_car = Car('diesel', 60)
     print(my_car.mileage)
@@ -237,8 +241,6 @@ if __name__ == '__main__':
     print(my_car.number_of_car_refueling())
     print(my_car.used_car_cost())
     print(my_car.mileage_before_disposal())
-    print(diesel_used_car_cost(diesel_car_list))
-    print(mileage_before_disposal_petrol_car(petrol_car_list))
-    print(car_cost(car_list))
-
-#  Спросить по list[type] в produce_cars
+    print(for_example.diesel_used_car_cost())
+    print(for_example.mileage_before_disposal_petrol_car())
+    print(for_example.car_cost())
