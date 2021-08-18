@@ -1,6 +1,4 @@
-"""
-Module
-"""
+"""Storage module for class Car, CarFabric and CarsHelperCalculationClass"""
 from math import ceil
 from random import randint
 from typing import Union
@@ -40,12 +38,9 @@ class Car:
 
         :return:number of repairs for car
         """
-        if self.engine == Car.DIESEL_ENGINE_TYPE:
-            number_of_repairs = self.mileage // Car.MILEAGE_BEFORE_REPAIR_DIESEL
-        else:
-            # For petrol car
-            number_of_repairs = self.mileage // Car.MILEAGE_BEFORE_REPAIR_PETROL
-        return number_of_repairs
+        number_of_repairs = Car.MILEAGE_BEFORE_REPAIR_DIESEL if self.engine == Car.DIESEL_ENGINE_TYPE else \
+            Car.MILEAGE_BEFORE_REPAIR_PETROL
+        return number_of_repairs // self.mileage
 
     def repair_cost(self) -> int:
         """
