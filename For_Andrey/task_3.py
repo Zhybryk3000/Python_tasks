@@ -2,6 +2,7 @@
 from math import ceil
 from random import randint
 from typing import Union
+import time
 
 
 class Car:
@@ -10,8 +11,8 @@ class Car:
     NEW_CAR_COST = 10000
     REPAIR_FOR_DIESEL_CAR = 700
     REPAIR_FOR_PETROL_CAR = 500
-    MILEAGE_BEFORE_REPAIR_DIESEL = 150_000
-    MILEAGE_BEFORE_REPAIR_PETROL = 100_000
+    MILEAGE_BEFORE_REPAIR_DIESEL = 150000
+    MILEAGE_BEFORE_REPAIR_PETROL = 100000
     DIESEL_FUEL_COST = 1.8
     PETROL_FUEL_COST = 2.4
     FUEL_CONSUMPTION_DIESEL_ON_HUNDRED_KM = 0.06
@@ -92,6 +93,7 @@ class Car:
         :return:number of car refueling
         """
         number_of_car_refueling = self.mileage / self.gas_tank
+        time.sleep(0.3)
         return ceil(number_of_car_refueling)
 
     def used_car_cost(self) -> int:
@@ -116,12 +118,11 @@ class Car:
 
         :return:mileage before disposal
         """
-        used_car_cost = Car.used_car_cost(self)
         if self.engine == Car.DIESEL_ENGINE_TYPE:
-            time_before_disposal = used_car_cost / (Car.DECREASE_VALUE_DIESEL_PER_THOUSAND_KM / 1000)
+            time_before_disposal = Car.used_car_cost(self) / (Car.DECREASE_VALUE_DIESEL_PER_THOUSAND_KM / 1000)
         else:
             # For petrol car
-            time_before_disposal = used_car_cost / (Car.DECREASE_VALUE_PETROL_PER_THOUSAND_KM / 1000)
+            time_before_disposal = Car.used_car_cost(self) / (Car.DECREASE_VALUE_PETROL_PER_THOUSAND_KM / 1000)
         return round(time_before_disposal)
 
 
@@ -169,7 +170,7 @@ class CarsHelperCalculationClass:
         return diesel_car
 
     @staticmethod
-    def sorted_petrol_cars(all_cars):
+    def sorted_petrol_cars(all_cars) -> list:
         """
         Method for sorting cars by engine type
         :return:list with petrol cars
@@ -226,7 +227,7 @@ class CarsHelperCalculationClass:
 
 if __name__ == '__main__':
     cars_list = CarFabric.produce_cars(100)
-    for_example = CarsHelperCalculationClass()
+    separate_task = CarsHelperCalculationClass()
     CarsHelperCalculationClass.sorted_diesel_cars(cars_list)
 
     my_car = Car('diesel', 60)
@@ -236,6 +237,6 @@ if __name__ == '__main__':
     print(my_car.number_of_car_refueling())
     print(my_car.used_car_cost())
     print(my_car.mileage_before_disposal())
-    print(for_example.diesel_used_car_cost())
-    print(for_example.mileage_before_disposal_petrol_car())
-    print(for_example.car_cost())
+    print(separate_task.diesel_used_car_cost())
+    print(separate_task.mileage_before_disposal_petrol_car())
+    print(separate_task.car_cost())
