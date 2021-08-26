@@ -249,9 +249,9 @@ class CarsHelperCalculationClass:
 if __name__ == '__main__':
     cars_list = CarFabric.produce_cars(100)
 
-    for x in cars_list:
-        x.run()
-
     print(CarsHelperCalculationClass.diesel_used_car_cost())
     print(CarsHelperCalculationClass.mileage_before_disposal_petrol_car())
     print(CarsHelperCalculationClass.car_cost())
+    
+    for x in cars_list:
+        x.run()
