@@ -255,3 +255,4 @@ if __name__ == '__main__':
     print(CarsHelperCalculationClass.diesel_used_car_cost())
     print(CarsHelperCalculationClass.mileage_before_disposal_petrol_car())
     print(CarsHelperCalculationClass.car_cost())
+
