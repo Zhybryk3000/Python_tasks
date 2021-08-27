@@ -4,7 +4,7 @@ from math import ceil
 from random import randint
 from typing import Union
 import time
-from operator import attrgetter, itemgetter  # I wanted use in for sort dict
+from operator import itemgetter
 from threading import Thread
 
 
@@ -203,32 +203,29 @@ class CarsHelperCalculationClass:
         return [car for car in all_cars if car.engine == engine_type]
 
     @staticmethod
-    def diesel_used_car_cost() -> list:
+    def diesel_used_car_cost():
         """
         For sort the list with used diesel cars
 
         :return:list diesel used car cost
         """
-        diesel_car_list = []  # list used car cost for diesel cars
+        diesel_car_list = {}  # list used car cost for diesel cars
         for i in CarsHelperCalculationClass.sort_cars_with_defined_engine_type(cars_list, Car.DIESEL_ENGINE_TYPE):
-            diesel_car_list.append(i.used_car_cost())
-        result_list = [e for e in diesel_car_list if e > 0]
-        result_list = sorted(result_list)
-        return result_list
+            diesel_car_list[i.car_number] = i.used_car_cost()
+        return dict(sorted([i for i in diesel_car_list.items() if i[1] != 0], key=itemgetter(1)))
 
     @staticmethod
-    def mileage_before_disposal_petrol_car() -> list:
+    def mileage_before_disposal_petrol_car():
         """
         For sort the list with used petrol cars
 
         :return: mileage before disposal for petrol cars
         """
-        petrol_car_list = []  # list time before disposal for petrol cars
-        for car in CarsHelperCalculationClass.sort_cars_with_defined_engine_type(cars_list, Car.PETROL_ENGINE_TYPE):
-            petrol_car_list.append(car.mileage_before_disposal())
-        result_list = [e for e in petrol_car_list if e > 0]
-        result_list = sorted(result_list)
-        return result_list
+        petrol_car_list = {}  # list time before disposal for petrol cars
+        for i in CarsHelperCalculationClass.sort_cars_with_defined_engine_type(cars_list, Car.PETROL_ENGINE_TYPE):
+            petrol_car_list[i.car_number] = i.mileage_before_disposal()
+        petrol_car_list = dict(filter(lambda y: y[1] != 0, petrol_car_list.items()))
+        return dict(sorted(petrol_car_list.items(), key=lambda y: y[1]))
 
     @staticmethod
     def car_cost() -> int:
@@ -252,6 +249,3 @@ if __name__ == '__main__':
     print(CarsHelperCalculationClass.diesel_used_car_cost())
     print(CarsHelperCalculationClass.mileage_before_disposal_petrol_car())
     print(CarsHelperCalculationClass.car_cost())
-    
-    for x in cars_list:
-        x.run()
