@@ -38,6 +38,10 @@ class Car:
         self.car_number = car_number
         self.mileage = randint(55000, 286000)
 
+    def __repr__(self):
+        return f'The object Car - car №{self.car_number}, engine type - {self.engine}, gas tank volume - ' \
+               f'{self.gas_tank}'
+
     def number_of_repairs(self) -> int:
         """
         Gets engine type and calculate repairs
@@ -175,15 +179,15 @@ class CarFabric:
         if not isinstance(number_of_produce, (int, float)):
             raise ValueError('Number of cars have to be numbers')
         for i in range(1, number_of_produce + 1):
-            if i % CarFabric.NUMBER_DIESEL_CAR == 0:
+            if i % cls.NUMBER_DIESEL_CAR == 0:
                 engine = Car.DIESEL_ENGINE_TYPE
             else:
                 engine = Car.PETROL_ENGINE_TYPE
-            if i % CarFabric.NUMBER_NON_STANDARD_GAS_TANK == 0:
-                gas_tank = CarFabric.VOLUME_STANDARD_GAS_TANK
+            if i % cls.NUMBER_NON_STANDARD_GAS_TANK == 0:
+                gas_tank = CarFabric.VOLUME_NON_STANDARD_GAS_TANK
                 car_number += 1
             else:
-                gas_tank = CarFabric.VOLUME_NON_STANDARD_GAS_TANK
+                gas_tank = CarFabric.VOLUME_STANDARD_GAS_TANK
                 car_number += 1
             cars.append(Car(engine, gas_tank, car_number))
         return cars
