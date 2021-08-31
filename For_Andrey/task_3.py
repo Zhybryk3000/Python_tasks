@@ -39,8 +39,7 @@ class Car:
         self.mileage = randint(55000, 286000)
 
     def __repr__(self):
-        return f'The object Car - car №{self.car_number}, engine type - {self.engine}, gas tank volume - ' \
-               f'{self.gas_tank}'
+        return f'Car №{self.car_number}; engine type - {self.engine}; gas tank volume - {self.gas_tank}\n'
 
     def number_of_repairs(self) -> int:
         """
@@ -250,6 +249,7 @@ class CarsHelperCalculationClass:
 if __name__ == '__main__':
     cars_list = CarFabric.produce_cars(100)
 
+    print(cars_list.__repr__().replace(",", ""))
     print(CarsHelperCalculationClass.diesel_used_car_cost())
     print(CarsHelperCalculationClass.mileage_before_disposal_petrol_car())
     print(CarsHelperCalculationClass.car_cost())
