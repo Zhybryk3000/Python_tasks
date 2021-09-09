@@ -5,7 +5,7 @@ from random import randint
 from typing import Union
 import time
 from operator import itemgetter
-from threading import Thread
+from threading import *
 
 
 class Car:
@@ -47,8 +47,8 @@ class Car:
 
         :return:number of repairs for car
         """
-        mileage_for_repair = Car.MILEAGE_FOR_REPAIR_DIESEL if self.engine == Car.DIESEL_ENGINE_TYPE else \
-            Car.MILEAGE_FOR_REPAIR_PETROL
+        mileage_for_repair = self.MILEAGE_FOR_REPAIR_DIESEL if self.engine == self.DIESEL_ENGINE_TYPE else \
+            self.MILEAGE_FOR_REPAIR_PETROL
         return self.mileage // mileage_for_repair
 
     def repair_cost(self) -> int:
@@ -57,8 +57,9 @@ class Car:
 
         :return:repair cost for car
         """
-        repair_cost = Car.REPAIR_FOR_DIESEL_CAR if self.engine == Car.DIESEL_ENGINE_TYPE else Car.REPAIR_FOR_PETROL_CAR
-        return repair_cost * Car.number_of_repairs(self)
+        repair_cost = self.REPAIR_FOR_DIESEL_CAR if self.engine == self.DIESEL_ENGINE_TYPE \
+            else self.REPAIR_FOR_PETROL_CAR
+        return repair_cost * self.number_of_repairs()
 
     def __fuel_cost_helper(self, fuel_consumption: Union[int, float],
                            fuel_cost: Union[int, float]) -> Union[int, float]:
@@ -72,13 +73,13 @@ class Car:
         kef = 0
         while True:
             if self.mileage > 1000:
-                fuel_cost = fuel_consumption * 1000 * fuel_cost
-                total_fuel_cost += fuel_cost + (fuel_cost * kef)
+                count = fuel_consumption * 1000 * fuel_cost
+                total_fuel_cost += count + (count * kef)
                 kef += 0.01
                 self.mileage -= 1000
             else:
-                fuel_cost = fuel_consumption * self.mileage * fuel_cost
-                total_fuel_cost += fuel_cost + (fuel_cost * kef)
+                count = fuel_consumption * self.mileage * fuel_cost
+                total_fuel_cost += count + (count * kef)
                 break
         return total_fuel_cost
 
@@ -88,11 +89,11 @@ class Car:
 
         :return:fuel cost with module round
         """
-        if self.engine == Car.DIESEL_ENGINE_TYPE:
-            return round(self.__fuel_cost_helper(Car.FUEL_CONSUMPTION_DIESEL_ON_HUNDRED_KM, Car.DIESEL_FUEL_COST))
+        if self.engine == self.DIESEL_ENGINE_TYPE:
+            return round(self.__fuel_cost_helper(self.FUEL_CONSUMPTION_DIESEL_ON_HUNDRED_KM, self.DIESEL_FUEL_COST))
         else:
             # For petrol car
-            return round(self.__fuel_cost_helper(Car.FUEL_CONSUMPTION_PETROL_ON_HUNDRED_KM, Car.PETROL_FUEL_COST))
+            return round(self.__fuel_cost_helper(self.FUEL_CONSUMPTION_PETROL_ON_HUNDRED_KM, self.PETROL_FUEL_COST))
 
     def number_of_car_refueling(self) -> int:
         """
@@ -111,11 +112,11 @@ class Car:
 
         :return:car cost after mileage
         """
-        if self.engine == Car.DIESEL_ENGINE_TYPE:
-            used_car_cost = Car.NEW_CAR_COST - (Car.DECREASE_VALUE_DIESEL_PER_THOUSAND_KM * (self.mileage // 1000))
+        if self.engine == self.DIESEL_ENGINE_TYPE:
+            used_car_cost = self.NEW_CAR_COST - (self.DECREASE_VALUE_DIESEL_PER_THOUSAND_KM * (self.mileage // 1000))
         else:
             # For petrol car
-            used_car_cost = Car.NEW_CAR_COST - (Car.DECREASE_VALUE_PETROL_PER_THOUSAND_KM * (self.mileage // 1000))
+            used_car_cost = Car.NEW_CAR_COST - (self.DECREASE_VALUE_PETROL_PER_THOUSAND_KM * (self.mileage // 1000))
         if used_car_cost <= 0:
             return 0
         return used_car_cost
@@ -126,41 +127,42 @@ class Car:
 
         :return:mileage before disposal
         """
-        if self.engine == Car.DIESEL_ENGINE_TYPE:
-            mileage_before_disposal = Car.used_car_cost(self) / (Car.DECREASE_VALUE_DIESEL_PER_THOUSAND_KM / 1000)
+        if self.engine == self.DIESEL_ENGINE_TYPE:
+            mileage_before_disposal = self.used_car_cost() / (self.DECREASE_VALUE_DIESEL_PER_THOUSAND_KM / 1000)
         else:
             # For petrol car
-            mileage_before_disposal = Car.used_car_cost(self) / (Car.DECREASE_VALUE_PETROL_PER_THOUSAND_KM / 1000)
+            mileage_before_disposal = self.used_car_cost() / (self.DECREASE_VALUE_PETROL_PER_THOUSAND_KM / 1000)
         return round(mileage_before_disposal)
 
-    def drive(self):
+    semaphore = threading.BoundedSemaphore(10)
+
+    def __drive(self):
         """
         For start machines at the same time. Use 'semaphore' for limiting the number of cars
         :return:car arrival message
         """
         distance = 0
-        max_car = 10
-        semaphore = threading.BoundedSemaphore(max_car)
+        Car.semaphore.acquire()
         start = time.time()
-        for i in range(286000):
-            semaphore.acquire()
+        print(f'Car number {self.car_number} run')
+        while distance < self.mileage:
             distance += 1000
             time.sleep(0.3)
-            semaphore.release()
-            if distance >= self.mileage:
-                finish = time.time()
-                print(f'car number {self.car_number} arrived after {int(finish - start)}sec')
-                break
+        finish = time.time()
+        print(f'Car number {self.car_number} arrived after {int(finish - start)}sec')
+        Car.semaphore.release()
 
     def run(self):
-        """For start drive method in multithreading"""
-        thread = Thread(target=self.drive)
+        """I can't kick off all the cars without this method!"""
+        thread = Thread(target=self.__drive)
         thread.start()
 
 
 class CarFabric:
     """Class for car making"""
 
+    PETROL_ENGINE_TYPE = Car.PETROL_ENGINE_TYPE
+    DIESEL_ENGINE_TYPE = Car.DIESEL_ENGINE_TYPE
     NUMBER_DIESEL_CAR = 3
     NUMBER_NON_STANDARD_GAS_TANK = 5
     VOLUME_STANDARD_GAS_TANK = 60
@@ -175,18 +177,18 @@ class CarFabric:
         """
         cars = []
         car_number = 0
-        if not isinstance(number_of_produce, (int, float)):
-            raise ValueError('Number of cars have to be numbers')
+        if not isinstance(number_of_produce, int):
+            raise ValueError('Number of cars must be numbers')
         for i in range(1, number_of_produce + 1):
             if i % cls.NUMBER_DIESEL_CAR == 0:
-                engine = Car.DIESEL_ENGINE_TYPE
+                engine = cls.DIESEL_ENGINE_TYPE
             else:
-                engine = Car.PETROL_ENGINE_TYPE
+                engine = cls.PETROL_ENGINE_TYPE
             if i % cls.NUMBER_NON_STANDARD_GAS_TANK == 0:
-                gas_tank = CarFabric.VOLUME_NON_STANDARD_GAS_TANK
+                gas_tank = cls.VOLUME_NON_STANDARD_GAS_TANK
                 car_number += 1
             else:
-                gas_tank = CarFabric.VOLUME_STANDARD_GAS_TANK
+                gas_tank = cls.VOLUME_STANDARD_GAS_TANK
                 car_number += 1
             cars.append(Car(engine, gas_tank, car_number))
         return cars
@@ -249,7 +251,11 @@ class CarsHelperCalculationClass:
 if __name__ == '__main__':
     cars_list = CarFabric.produce_cars(100)
 
+    """
+    for car in cars_list:
+        car.run()
     print(cars_list.__repr__().replace(",", ""))
     print(CarsHelperCalculationClass.diesel_used_car_cost())
     print(CarsHelperCalculationClass.mileage_before_disposal_petrol_car())
     print(CarsHelperCalculationClass.car_cost())
+    """
